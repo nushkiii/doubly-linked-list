@@ -1,0 +1,104 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+// Structure for doubly linked list node
+struct Node {
+    int data;
+    struct Node* prev;
+    struct Node* next;
+};
+
+// Function to insert a new node at the end of the doubly linked list
+void insertEnd(struct Node** head, int data) {
+    struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
+    newNode->data = data;
+    newNode->prev = NULL;
+    newNode->next = NULL;
+
+    if (*head == NULL) {
+        *head = newNode;
+    } else {
+        struct Node* current = *head;
+        while (current->next != NULL) {
+            current = current->next;
+        }
+        current->next = newNode;
+        newNode->prev = current;
+    }
+}
+
+// Function to search for an element in the doubly linked list
+struct Node* search(struct Node* head, int key) {
+    struct Node* current = head;
+    while (current != NULL) {
+        if (current->data == key) {
+            return current;
+        }
+        current = current->next;
+    }
+    return NULL;
+}
+
+// Function to persist the elements into a text file
+void persistToTextFile(struct Node* head, const char* filename) {
+    FILE* file = fopen(filename, "w");
+    if (file == NULL) {
+        printf("Error opening file.\n");
+        return;
+    }
+
+    struct Node* current = head;
+    while (current != NULL) {
+        fprintf(file, "%d\n", current->data);
+        current = current->next;
+    }
+
+    fclose(file);
+}
+
+// Function to persist the elements into a binary file
+void persistToBinaryFile(struct Node* head, const char* filename) {
+    FILE* file = fopen(filename, "wb");
+    if (file == NULL) {
+        printf("Error opening file.\n");
+        return;
+    }
+
+    struct Node* current = head;
+    while (current != NULL) {
+        fwrite(&(current->data), sizeof(int), 1, file);
+        current = current->next;
+    }
+
+    fclose(file);
+}
+
+int main() {
+    struct Node* head = NULL;
+    int N,i;
+    int elements[50];
+    printf("Enter size=");
+    scanf("%d",&N);
+    printf("Enter elements=");
+    for(i=0;i<N;i++)
+        scanf("%d",&elements[i]);
+
+    for ( i = 0; i < N; i++) {
+        insertEnd(&head, elements[i]);
+    }
+     printf("Enter key to be searched=");
+    int searchKey;
+    scanf("%d",&searchKey);
+    struct Node* result = search(head, searchKey);
+
+    if (result != NULL) {
+        printf("Element %d found in the list.\n", searchKey);
+    } else {
+        printf("Element %d not found in the list.\n", searchKey);
+    }
+
+    persistToTextFile(head, "doubly_linked_list.txt");
+    persistToBinaryFile(head, "doubly_linked_list.bin");
+
+    return 0;
+}
